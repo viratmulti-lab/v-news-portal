@@ -1,0 +1,546 @@
+<!DOCTYPE html>
+<html lang="hi">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>V NEWS - आपकी विश्वसनीय खबरें</title>
+    <!-- Tailwind CSS CDN -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Font: Inter (Used by default by Tailwind) -->
+    <style>
+        body { font-family: 'Inter', sans-serif; background-color: #f7f9fb; }
+        .ticker-wrap { width: 100%; overflow: hidden; height: 32px; background-color: #ef4444; color: white; }
+        .ticker { display: inline-block; white-space: nowrap; padding-left: 100%; animation: ticker 40s linear infinite; }
+        @keyframes ticker { 0% { transform: translate3d(0, 0, 0); } 100% { transform: translate3d(-100%, 0, 0); } }
+        .admin-btn-toggle { position: fixed; bottom: 20px; right: 20px; z-index: 50; }
+        /* Custom scrollbar for better looks */
+        ::-webkit-scrollbar { width: 8px; }
+        ::-webkit-scrollbar-track { background: #f1f1f1; }
+        ::-webkit-scrollbar-thumb { background: #cbd5e1; border-radius: 10px; }
+        ::-webkit-scrollbar-thumb:hover { background: #94a3b8; }
+    </style>
+</head>
+<body class="min-h-screen">
+
+    <!-- Header Section -->
+    <header class="bg-white shadow-md sticky top-0 z-40">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-3 flex justify-between items-center">
+            <!-- Logo and Branding -->
+            <div class="flex items-center space-x-3">
+                <!-- V News Official Logo (Using uploaded image) -->
+                <!-- यह वह लाइन है जो आपके अपलोड किए गए लोगो को दिखाती है: -->
+                <img src="LOGO V NEWS.jpg" alt="V News Official Logo" class="h-12 w-12 object-contain rounded-full border p-1 bg-white shadow-inner" onerror="this.onerror=null;this.src='https://placehold.co/48x48/f87171/ffffff?text=V';" />
+                <h1 class="text-3xl font-extrabold text-gray-900 leading-none">V <span class="text-red-600">NEWS</span></h1>
+            </div>
+            
+            <!-- Live Clock and Contact Info -->
+            <div class="text-right hidden sm:block">
+                <p id="live-clock" class="text-2xl font-bold text-gray-700"></p>
+                <p id="live-date" class="text-sm text-gray-500"></p>
+            </div>
+        </div>
+        <!-- Breaking News Strip -->
+        <div class="ticker-wrap">
+            <div class="ticker flex items-center h-full">
+                <span class="text-sm font-semibold ml-8">ब्रेकिंग:</span>
+                <span id="breaking-news-strip" class="text-sm tracking-wide ml-3">
+                    <!-- Breaking news headlines will be injected here -->
+                    V NEWS में आपका स्वागत है। Dindori, MP से विश्वसनीय खबरें।
+                </span>
+            </div>
+        </div>
+    </header>
+    
+    <!-- Main Content Area -->
+    <main class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 my-8">
+        <div class="grid grid-cols-1 lg:grid-cols-3 gap-8">
+            
+            <!-- Left Column: Primary News Feed (2/3 width on desktop) -->
+            <div class="lg:col-span-2 space-y-8">
+                <h2 class="text-2xl font-bold text-gray-800 border-b-4 border-red-600 pb-2">ताज़ा खबरें</h2>
+                <div id="news-container" class="grid grid-cols-1 md:grid-cols-2 gap-6">
+                    <!-- News Articles will be dynamically loaded here -->
+                    <p class="text-gray-500">खबरें लोड हो रही हैं...</p>
+                </div>
+            </div>
+
+            <!-- Right Column: Live Data and Utility (1/3 width on desktop) -->
+            <div class="lg:col-span-1 space-y-6">
+                
+                <!-- Live Sports, Weather, AQI Card -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                    <h3 class="text-xl font-bold mb-4 text-red-600">लाइव अपडेट्स</h3>
+
+                    <!-- Cricket Score (Mock) -->
+                    <div class="mb-5 p-3 bg-blue-50 rounded-lg">
+                        <p class="text-sm font-semibold text-blue-700 mb-1">भारत vs ऑस्ट्रेलिया (पुरुष अंतर्राष्ट्रीय)</p>
+                        <p class="text-2xl font-extrabold text-blue-900">भारत: 285/5 (45.3 ओवर)</p>
+                        <p class="text-sm text-gray-600">स्कोरिंग (मॉक) - सूर्य कुमार 82*, हार्दिक 45*</p>
+                    </div>
+
+                    <!-- Weather and AQI (Mock) -->
+                    <div class="grid grid-cols-2 gap-4">
+                        <!-- Temperature -->
+                        <div class="bg-green-50 p-3 rounded-lg text-center">
+                            <p class="text-3xl font-bold text-green-700">28°C</p>
+                            <p class="text-sm text-gray-600">तापमान (Dindori Mock)</p>
+                        </div>
+                        <!-- AQI -->
+                        <div class="bg-yellow-50 p-3 rounded-lg text-center">
+                            <p class="text-3xl font-bold text-yellow-700">95 <span class="text-sm">AQI</span></p>
+                            <p class="text-sm text-gray-600">वायु गुणवत्ता (मध्यम)</p>
+                        </div>
+                    </div>
+                    <p id="city-info" class="text-xs text-center text-gray-400 mt-3">आपका शहर: Dindori (सिम्युलेटेड)</p>
+                </div>
+
+                <!-- AI Tools Panel (Simulation) -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                    <h3 class="text-xl font-bold mb-4 text-gray-800">AI एडिटिंग टूल</h3>
+                    <p class="text-sm text-gray-600 mb-4">यह पैनल AI-आधारित कार्यों को दर्शाता है, जिसके लिए सर्वर-साइड प्रोसेसिंग की आवश्यकता होती है।</p>
+                    
+                    <button onclick="simulateImageCrop()" class="w-full bg-indigo-600 text-white py-2 px-4 rounded-lg hover:bg-indigo-700 transition duration-150 mb-3">
+                        <span class="font-semibold">AI इमेज क्रॉप/रीसाइज़</span> (सिम्युलेटेड)
+                    </button>
+                    
+                    <button onclick="simulateHindiCorrection()" class="w-full bg-pink-600 text-white py-2 px-4 rounded-lg hover:bg-pink-700 transition duration-150">
+                        <span class="font-semibold">हिंदी शब्द सुधार (NLP)</span> (सिम्युलेटेड)
+                    </button>
+
+                    <div id="ai-output" class="mt-4 p-3 bg-gray-100 text-sm rounded hidden"></div>
+                </div>
+
+                <!-- YouTube Integration -->
+                <div class="bg-white p-6 rounded-xl shadow-lg border border-gray-100">
+                    <h3 class="text-xl font-bold mb-4 text-gray-800">V NEWS - YouTube</h3>
+                    <!--
+                        ज़रूरी सूचना: YouTube के नवीनतम वीडियो को स्वचालित रूप से दिखाने के लिए सर्वर-साइड कोड या YouTube API Key की आवश्यकता होती है, जो इस सिंगल HTML फ़ाइल में सुरक्षित रूप से संभव नहीं है।
+                        
+                        समाधान: जब भी आप नया वीडियो अपलोड करें, तो बस नीचे दिए गए 'dQw4w9WgXcQ' को अपने नए वीडियो के ID से बदल दें।
+                    -->
+                    <iframe width="100%" height="200" src="https://www.youtube.com/embed/dQw4w9WgXcQ?controls=0" title="YouTube video player" frameborder="0" allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture" allowfullscreen class="rounded-lg"></iframe>
+                    <p class="mt-3 text-center">
+                        <!-- UPDATED YOUTUBE HANDLE HERE -->
+                        <a href="https://www.youtube.com/@abhilashshukla-v1x" target="_blank" class="text-red-600 hover:text-red-700 font-semibold transition duration-150">हमारा YouTube चैनल देखें</a>
+                    </p>
+                </div>
+
+            </div>
+        </div>
+    </main>
+
+    <!-- Admin Panel Toggle Button (Fixed) -->
+    <button id="admin-toggle-btn" class="admin-btn-toggle bg-red-600 text-white p-3 rounded-full shadow-2xl hover:bg-red-700 transition duration-300 transform hover:scale-105" onclick="toggleAdminPanel()">
+        <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M10.325 4.317c.426-1.756 2.924-1.756 3.35 0a1.724 1.724 0 002.573 1.066c1.543-.94 3.31.826 2.37 2.37a1.724 1.724 0 001.065 2.572c1.756.426 1.756 2.924 0 3.35a1.724 1.724 0 00-1.066 2.573c.94 1.543-.826 3.31-2.37 2.37a1.724 1.724 0 00-2.572 1.065c-.426 1.756-2.924 1.756-3.35 0a1.724 1.724 0 00-2.573-1.066c-1.543.94-3.31-.826-2.37-2.37a1.724 1.724 0 00-1.065-2.572c-1.756-.426-1.756-2.924 0-3.35a1.724 1.724 0 001.066-2.573c-.94-1.543.826-3.31 2.37-2.37.996.608 2.296.48 2.572-1.065z" />
+            <path stroke-linecap="round" stroke-linejoin="round" d="M15 12a3 3 0 11-6 0 3 3 0 016 0z" />
+        </svg>
+    </button>
+
+    <!-- Admin Panel Content (Initially Hidden) -->
+    <div id="admin-panel" class="fixed inset-0 bg-gray-900 bg-opacity-95 z-50 hidden overflow-y-auto">
+        <div class="max-w-4xl mx-auto p-8 bg-white rounded-lg shadow-2xl my-10">
+            <div class="flex justify-between items-center border-b pb-4 mb-6">
+                <h2 class="text-3xl font-extrabold text-gray-900">V NEWS - एडमिन पैनल</h2>
+                <button onclick="toggleAdminPanel()" class="text-gray-500 hover:text-gray-700 transition duration-150">
+                    <svg xmlns="http://www.w3.org/2000/svg" class="h-8 w-8" fill="none" viewBox="0 0 24 24" stroke="currentColor" stroke-width="2">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M6 18L18 6M6 6l12 12" />
+                    </svg>
+                </button>
+            </div>
+
+            <!-- News Addition Form -->
+            <h3 class="text-xl font-bold mb-4 text-red-600">नया लेख जोड़ें</h3>
+            <form id="add-news-form" class="space-y-4 p-5 bg-gray-50 rounded-lg">
+                <input type="text" id="news-title" placeholder="खबर का शीर्षक (Headline)" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500">
+                <textarea id="news-content" rows="6" placeholder="खबर का पूरा विवरण (Content)" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500"></textarea>
+                <input type="url" id="news-image-url" placeholder="छवि URL (Image URL - वैकल्पिक)" class="w-full p-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500">
+                <!-- NEW SOURCE INPUT FIELD -->
+                <input type="text" id="news-source" placeholder="खबर का स्रोत (Source - उदा. Jansampark Vibhag Dindori)" required class="w-full p-3 border border-gray-300 rounded-lg focus:ring-red-500 focus:border-red-500">
+                
+                <div class="flex items-center space-x-3">
+                    <input type="checkbox" id="is-breaking-news" class="h-5 w-5 text-red-600 border-gray-300 rounded focus:ring-red-500">
+                    <label for="is-breaking-news" class="text-gray-700 font-medium">ब्रेकिंग न्यूज़ के रूप में चिह्नित करें</label>
+                </div>
+                <button type="submit" class="w-full bg-red-600 text-white py-3 px-4 rounded-lg font-bold text-lg hover:bg-red-700 transition duration-150 shadow-md">खबर प्रकाशित करें</button>
+            </form>
+
+            <!-- News Management List -->
+            <h3 class="text-xl font-bold mt-8 mb-4 text-gray-800">प्रकाशित लेख</h3>
+            <div id="admin-news-list" class="space-y-3">
+                <p class="text-gray-500">कोई लेख प्रबंधन के लिए नहीं मिला।</p>
+                <!-- Existing news items will be loaded here for management -->
+            </div>
+        </div>
+    </div>
+
+    <!-- Footer Section -->
+    <footer class="bg-gray-800 text-white mt-12 py-8">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="grid grid-cols-1 md:grid-cols-4 gap-8 border-b border-gray-700 pb-6 mb-6">
+                
+                <!-- About V News -->
+                <div>
+                    <h4 class="text-lg font-bold mb-3 text-red-400">V NEWS</h4>
+                    <p class="text-sm text-gray-400">
+                        'खबरों का पोस्टमॉर्टम' - हम Dindori, MP से विश्वसनीय और गहन खबरें आप तक पहुँचाने के लिए प्रतिबद्ध हैं।
+                    </p>
+                </div>
+                
+                <!-- Contact Info -->
+                <div>
+                    <h4 class="text-lg font-bold mb-3 text-red-400">संपर्क</h4>
+                    <p class="text-sm text-gray-400">मालिक: **अभिलाष शुक्ला**</p>
+                    <p class="text-sm text-gray-400">पता: वार्ड नं. 10, मेन रोड, Dindori</p>
+                    <p class="text-sm text-gray-400">मोबाइल/WhatsApp: 8319912387</p>
+                    <p class="text-sm text-gray-400">ईमेल: V.NEWS.MP@GMAIL.COM</p>
+                </div>
+                
+                <!-- Policy Links (as per Govt. of India Guidelines) -->
+                <div>
+                    <h4 class="text-lg font-bold mb-3 text-red-400">वैधानिक नीतियां</h4>
+                    <ul class="space-y-2 text-sm">
+                        <li><a href="#" class="text-gray-300 hover:text-red-500 transition duration-150">उपयोगकर्ता नीति और शर्तें</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-red-500 transition duration-150">गोपनीयता नीति (Privacy Policy)</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-red-500 transition duration-150">शिकायत निवारण तंत्र</a></li>
+                        <li><a href="#" class="text-gray-300 hover:text-red-500 transition duration-150">संपादकीय आचार संहिता</a></li>
+                    </ul>
+                </div>
+
+                <!-- Social Media -->
+                <div>
+                    <h4 class="text-lg font-bold mb-3 text-red-400">हमें फॉलो करें</h4>
+                    <!-- UPDATED YOUTUBE HANDLE HERE -->
+                    <a href="https://www.youtube.com/@abhilashshukla-v1x" target="_blank" class="inline-block text-red-600 bg-white p-2 rounded-full hover:bg-gray-200 transition duration-150">
+                        <!-- YouTube Icon SVG -->
+                        <svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="currentColor"><path d="M19.615 3.184c-3.604-.246-11.631-.245-15.228 0-3.978.272-4.943 3.65-4.387 9.871 0 5.483 1.055 9.079 4.387 9.871 3.604.246 11.631.245 15.228 0 3.978-.272 4.943-3.65 4.387-9.871 0-5.483-1.055-9.079-4.387-9.871zm-7.615 15.215v-10.799l6.39 5.399-6.39 5.399z"/></svg>
+                    </a>
+                </div>
+            </div>
+            
+            <div class="text-center text-sm text-gray-400">
+                &copy; <span id="current-year"></span> V NEWS. सर्वाधिकार सुरक्षित। Dindori, M.P.
+            </div>
+        </div>
+    </footer>
+
+    <!-- Firebase Script and Logic -->
+    <script type="module">
+        // Import Firebase modules
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, doc, getDoc, addDoc, setDoc, updateDoc, deleteDoc, onSnapshot, collection, query, where, serverTimestamp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        import { setLogLevel } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+        
+        // Set Firestore log level to Debug
+        setLogLevel('Debug');
+
+        // Global variables provided by the environment
+        const appId = typeof __app_id !== 'undefined' ? __app_id : 'v-news-default-app';
+        const firebaseConfig = JSON.parse(typeof __firebase_config !== 'undefined' ? __firebase_config : '{}');
+        const initialAuthToken = typeof __initial_auth_token !== 'undefined' ? __initial_auth_token : null;
+
+        let db, auth, userId = null;
+        let isAuthReady = false;
+
+        // --- Utility Functions ---
+
+        function showMessage(message, isError = false) {
+            const output = document.getElementById('ai-output');
+            output.textContent = message;
+            output.className = `mt-4 p-3 rounded text-sm ${isError ? 'bg-red-100 text-red-800' : 'bg-green-100 text-green-800'}`;
+            output.classList.remove('hidden');
+            setTimeout(() => {
+                output.classList.add('hidden');
+            }, 5000);
+        }
+
+        // --- AI Simulation Functions ---
+        window.simulateImageCrop = () => {
+            showMessage("AI इमेज क्रॉपिंग सिम्युलेटेड: एक बाहरी AI सेवा छवि को स्वचालित रूप से क्रॉप और रीसाइज़ कर सकती है।", false);
+        };
+
+        window.simulateHindiCorrection = () => {
+            showMessage("AI हिंदी शब्द सुधार सिम्युलेटेड: NLP मॉडल लेखों में वर्तनी और व्याकरण की त्रुटियों को ठीक करेगा।", false);
+        };
+
+        // --- Real-time Clock and Date ---
+        function updateClock() {
+            const now = new Date();
+            const timeOptions = { hour: '2-digit', minute: '2-digit', second: '2-digit', hour12: true };
+            const dateOptions = { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' };
+
+            document.getElementById('live-clock').textContent = now.toLocaleTimeString('en-US', timeOptions).replace(/ (AM|PM)/, (m) => ` ${m}`);
+            document.getElementById('live-date').textContent = now.toLocaleDateString('hi-IN', dateOptions);
+            document.getElementById('current-year').textContent = now.getFullYear();
+        }
+
+        // --- Firebase Initialization and Auth ---
+
+        async function initFirebase() {
+            try {
+                if (Object.keys(firebaseConfig).length === 0) {
+                    console.error("Firebase configuration is missing or empty.");
+                    // Fallback to anonymous sign-in if config is missing but still needs to run
+                    const app = initializeApp({});
+                    auth = getAuth(app);
+                    db = getFirestore(app);
+                } else {
+                    const app = initializeApp(firebaseConfig);
+                    auth = getAuth(app);
+                    db = getFirestore(app);
+                }
+
+                if (initialAuthToken) {
+                    await signInWithCustomToken(auth, initialAuthToken);
+                    console.log("Signed in with custom token.");
+                } else {
+                    await signInAnonymously(auth);
+                    console.log("Signed in anonymously.");
+                }
+                
+                onAuthStateChanged(auth, (user) => {
+                    if (user) {
+                        userId = user.uid;
+                        isAuthReady = true;
+                        console.log("Auth state changed. User ID:", userId);
+                        // Start loading data after auth is ready
+                        setupNewsListeners();
+                    } else {
+                        // This case is unlikely if we sign in anonymously/with custom token immediately
+                        userId = crypto.randomUUID(); // Fallback UUID for non-authenticated actions
+                        isAuthReady = true;
+                        setupNewsListeners();
+                        console.log("No authenticated user, using temporary UUID:", userId);
+                    }
+                });
+
+            } catch (error) {
+                console.error("Error initializing Firebase or signing in:", error);
+                isAuthReady = true;
+                setupNewsListeners(); // Attempt to load data even if auth fails
+            }
+        }
+
+        // --- Firestore Data Operations ---
+
+        function getNewsCollectionRef() {
+            // Using the Public data path for shared news articles
+            return collection(db, 'artifacts', appId, 'public', 'data', 'v_news_articles');
+        }
+
+        async function addNewsArticle(title, content, imageUrl, isBreaking, source) {
+            if (!isAuthReady || !db) {
+                showMessage("Database कनेक्शन तैयार नहीं है। कृपया प्रतीक्षा करें।", true);
+                return;
+            }
+            try {
+                await addDoc(getNewsCollectionRef(), {
+                    title: title,
+                    content: content,
+                    imageUrl: imageUrl || 'https://placehold.co/600x400/CCCCCC/333333?text=V+NEWS',
+                    isBreaking: isBreaking,
+                    source: source, // New field for source
+                    timestamp: serverTimestamp(),
+                    isArchived: false,
+                    authorId: userId,
+                    authorName: 'Admin', // Simplified author name for this setup
+                });
+                showMessage("खबर सफलतापूर्वक प्रकाशित हुई!");
+            } catch (error) {
+                console.error("Error adding document: ", error);
+                showMessage(`खबर प्रकाशित करने में त्रुटि: ${error.message}`, true);
+            }
+        }
+        
+        async function updateNewsStatus(docId, field, value) {
+            if (!isAuthReady || !db) {
+                showMessage("Database कनेक्शन तैयार नहीं है। कृपया प्रतीक्षा करें।", true);
+                return;
+            }
+            try {
+                const newsRef = doc(getNewsCollectionRef(), docId);
+                await updateDoc(newsRef, {
+                    [field]: value
+                });
+                showMessage("खबर सफलतापूर्वक अद्यतन हुई!");
+            } catch (error) {
+                console.error("Error updating document: ", error);
+                showMessage(`खबर अद्यतन करने में त्रुटि: ${error.message}`, true);
+            }
+        }
+        
+        async function deleteNewsArticle(docId) {
+             if (!isAuthReady || !db) {
+                showMessage("Database कनेक्शन तैयार नहीं है। कृपया प्रतीक्षा करें।", true);
+                return;
+            }
+            try {
+                await deleteDoc(doc(getNewsCollectionRef(), docId));
+                showMessage("खबर सफलतापूर्वक हटाई गई!");
+            } catch (error) {
+                console.error("Error deleting document: ", error);
+                showMessage(`खबर हटाने में त्रुटि: ${error.message}`, true);
+            }
+        }
+
+
+        // --- UI Rendering Functions ---
+        
+        function renderNewsArticles(articles) {
+            const newsContainer = document.getElementById('news-container');
+            const adminNewsList = document.getElementById('admin-news-list');
+            const breakingStrip = document.getElementById('breaking-news-strip');
+
+            newsContainer.innerHTML = articles.length === 0 ? '<p class="text-gray-500 col-span-full">अभी कोई ताज़ा खबर नहीं है।</p>' : '';
+            adminNewsList.innerHTML = articles.length === 0 ? '<p class="text-gray-500">कोई लेख प्रबंधन के लिए नहीं मिला।</p>' : '';
+            
+            let breakingNewsHeadlines = [];
+            const jansamparkSource = 'jansampark vibhag dindori';
+
+            articles.forEach(article => {
+                // 1. Main News Container Rendering
+                if (!article.isArchived) {
+                    const newsCard = document.createElement('div');
+                    newsCard.className = 'bg-white rounded-xl shadow-lg overflow-hidden transition duration-300 hover:shadow-xl transform hover:scale-[1.01]';
+                    
+                    const timestampDate = article.timestamp ? new Date(article.timestamp.seconds * 1000) : new Date();
+                    const timeString = timestampDate.toLocaleTimeString('hi-IN', { hour: '2-digit', minute: '2-digit' });
+
+                    // Check if the source matches 'Jansampark Vibhag Dindori' (case-insensitive)
+                    const isJansampark = article.source && String(article.source).toLowerCase().includes(jansamparkSource);
+                    // Update: Highlight the card border if the source is Jansampark
+                    const cardBorderClass = isJansampark ? 'border-4 border-blue-600' : 'border border-gray-100';
+                    const sourceClass = isJansampark ? 'text-blue-600 font-bold' : 'text-gray-500';
+
+                    newsCard.className = `bg-white rounded-xl shadow-lg overflow-hidden transition duration-300 hover:shadow-xl transform hover:scale-[1.01] ${cardBorderClass}`;
+
+
+                    newsCard.innerHTML = `
+                        <img src="${article.imageUrl}" onerror="this.onerror=null;this.src='https://placehold.co/600x400/CCCCCC/333333?text=V+NEWS';" alt="${article.title}" class="w-full h-48 object-cover">
+                        <div class="p-5">
+                            <span class="inline-block px-3 py-1 text-xs font-semibold rounded-full ${article.isBreaking ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}">${article.isBreaking ? 'ब्रेकिंग' : 'ताज़ा'}</span>
+                            <h3 class="mt-2 text-xl font-bold text-gray-900">${article.title}</h3>
+                            <p class="mt-2 text-gray-600 text-sm line-clamp-3">${article.content}</p>
+                            <!-- Source and time display -->
+                            <p class="mt-4 text-xs ${sourceClass}">स्रोत: ${article.source || 'V News'}</p>
+                            <p class="mt-1 text-xs text-gray-400">प्रकाशित: ${timeString}</p>
+                        </div>
+                    `;
+                    newsContainer.appendChild(newsCard);
+                }
+
+                // 2. Breaking News Strip Data
+                if (article.isBreaking && !article.isArchived) {
+                    breakingNewsHeadlines.push(`*** ${article.title} (स्रोत: ${article.source || 'V News'}) ***`);
+                }
+
+                // 3. Admin Panel List Rendering
+                const adminItem = document.createElement('div');
+                adminItem.className = 'flex justify-between items-center p-3 bg-white rounded-lg shadow border border-gray-100';
+                adminItem.innerHTML = `
+                    <p class="text-gray-900 text-sm font-semibold truncate w-1/3" title="${article.title}">${article.title}</p>
+                    <div class="space-x-2 text-sm">
+                        <span class="inline-block px-2 py-1 text-xs rounded-full font-medium ${article.isBreaking ? 'bg-red-100 text-red-700' : 'bg-gray-100 text-gray-700'}">${article.isBreaking ? 'ब्रेकिंग' : 'सामान्य'}</span>
+                        <span class="inline-block px-2 py-1 text-xs rounded-full font-medium ${article.isArchived ? 'bg-yellow-100 text-yellow-700' : 'bg-green-100 text-green-700'}">${article.isArchived ? 'संग्रहीत' : 'सक्रिय'}</span>
+                        <span class="inline-block px-2 py-1 text-xs rounded-full font-medium bg-indigo-100 text-indigo-700" title="Source">${article.source || 'V News'}</span>
+                    </div>
+                    <div class="space-x-2">
+                        <button onclick="toggleBreaking('${article.id}', ${article.isBreaking})" class="px-3 py-1 text-xs rounded-lg text-white font-medium ${article.isBreaking ? 'bg-yellow-500 hover:bg-yellow-600' : 'bg-green-600 hover:bg-green-700'}">
+                            ${article.isBreaking ? 'ब्रेकिंग हटाएँ' : 'ब्रेकिंग बनाएँ'}
+                        </button>
+                        <button onclick="toggleArchive('${article.id}', ${article.isArchived})" class="px-3 py-1 text-xs rounded-lg text-white font-medium ${article.isArchived ? 'bg-blue-600 hover:bg-blue-700' : 'bg-gray-500 hover:bg-gray-600'}">
+                            ${article.isArchived ? 'सक्रिय करें' : 'संग्रहीत करें'}
+                        </button>
+                         <button onclick="deleteArticle('${article.id}')" class="px-3 py-1 text-xs rounded-lg text-white font-medium bg-red-600 hover:bg-red-700">
+                            हटाएँ
+                        </button>
+                    </div>
+                `;
+                adminNewsList.appendChild(adminItem);
+            });
+            
+            // 4. Update Breaking News Strip
+            breakingStrip.textContent = breakingNewsHeadlines.join(' | ');
+            if (breakingNewsHeadlines.length === 0) {
+                 breakingStrip.textContent = 'V NEWS में आपका स्वागत है। Dindori, MP से विश्वसनीय खबरें।';
+            }
+        }
+
+        // --- News Listeners ---
+
+        function setupNewsListeners() {
+            if (!isAuthReady || !db) {
+                console.warn("Database or Auth not ready, skipping setupNewsListeners.");
+                return;
+            }
+            
+            const q = query(getNewsCollectionRef());
+            
+            onSnapshot(q, (snapshot) => {
+                const articles = [];
+                snapshot.forEach(doc => {
+                    articles.push({ id: doc.id, ...doc.data() });
+                });
+                
+                // Client-side sorting by timestamp (descending)
+                articles.sort((a, b) => {
+                    const timeA = a.timestamp ? a.timestamp.seconds : 0;
+                    const timeB = b.timestamp ? b.timestamp.seconds : 0;
+                    return timeB - timeA;
+                });
+                
+                renderNewsArticles(articles);
+            }, (error) => {
+                console.error("Error listening to news collection:", error);
+                document.getElementById('news-container').innerHTML = '<p class="text-red-500 col-span-full">खबरें लोड करने में त्रुटि हुई।</p>';
+            });
+        }
+
+
+        // --- Event Handlers and Exports for Global Scope ---
+        
+        window.toggleAdminPanel = () => {
+            document.getElementById('admin-panel').classList.toggle('hidden');
+        };
+
+        window.toggleBreaking = (docId, currentState) => {
+            updateNewsStatus(docId, 'isBreaking', !currentState);
+        };
+        
+        window.toggleArchive = (docId, currentState) => {
+            updateNewsStatus(docId, 'isArchived', !currentState);
+        };
+        
+        window.deleteArticle = (docId) => {
+             // Use custom modal in a real app, but using window.confirm for simplicity here.
+             if (window.confirm("क्या आप वाकई इस खबर को स्थायी रूप से हटाना चाहते हैं?")) {
+                deleteNewsArticle(docId);
+            }
+        };
+
+        document.getElementById('add-news-form').addEventListener('submit', function(e) {
+            e.preventDefault();
+            const title = document.getElementById('news-title').value;
+            const content = document.getElementById('news-content').value;
+            const imageUrl = document.getElementById('news-image-url').value;
+            const source = document.getElementById('news-source').value; // Get the new source value
+            const isBreaking = document.getElementById('is-breaking-news').checked;
+
+            addNewsArticle(title, content, imageUrl, isBreaking, source); // Pass source to the function
+
+            // Clear form
+            this.reset();
+        });
+
+
+        // --- Initialization on Load ---
+        window.onload = () => {
+            initFirebase();
+            updateClock();
+            setInterval(updateClock, 1000); // Update clock every second
+        };
+
+    </script>
+</body>
+</html>
